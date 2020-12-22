@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 
 export const useSearch = (query) => {
@@ -9,8 +9,22 @@ export const useSearch = (query) => {
         error: ''
     });
 
+    const cancelToken = useRef(null);
+
     useEffect(() => {
-        axios.get(`https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${query}`)
+        if (query.length < 3) {
+            return
+        }
+
+        if (cancelToken.current) {
+            cancelToken.current.cancel();
+        }
+
+        cancelToken.current = axios.CancelToken.source();
+
+        axios.get(`https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${query}`, {
+            cancelToken: cancelToken.current.token
+        })
             .then(response => {
                 const parsedResponse = [];
                 for (let i = 0; i < response.data[1].length; i++) {
@@ -27,11 +41,16 @@ export const useSearch = (query) => {
                 })
             })
             .catch(error => {
+
+                if (axios.isCancel(error)) {
+                    return
+                }
+
                 setState({
                     articles: [],
                     status: 'ERROR',
                     error: error
-                })
+                });
             })
     }, [query]);
 
