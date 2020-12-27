@@ -2,6 +2,7 @@ import React from "react";
 import ReactAutocomplete from 'react-autocomplete';
 
 import Input from '../Input';
+import './style.css';
 
 const Autocomplete = ({ articles, searchValue, onSearchChange }) => (
 
