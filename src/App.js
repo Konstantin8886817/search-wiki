@@ -1,39 +1,22 @@
 import React from "react";
-import ReactAutocomplete from 'react-autocomplete';
-import { useSearch, useDebounce, useSearchForm } from "./hooks";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from "react-router-dom";
 
-import Input from './components/Input';
+import Home from './pages/Home';
+import Search from './pages/Search';
+import NotFound from './pages/NotFound';
 
-function App() {
-
-  const { searchValue, onSearchChange } = useSearchForm();
-  const { articles } = useSearch(useDebounce(searchValue));
-
-  return (
-    <ReactAutocomplete
-      items={articles}
-      renderInput={Input}
-      inputProps={{ placeholder: 'Input a search term' }}
-      getItemValue={item => item.label}
-      renderMenu={(children, value, style) => {
-        return articles && articles.length ?
-          (<div style={{ ...style }} className="input-suggestions">
-            {children}
-            <a href={`/search?query=${value}`} className="search-link">See all results</a>
-          </div>) : <></>
-      }}
-      renderItem={(item, highlighted) =>
-        <div
-          key={item.id}
-          style={{ backgroundColor: highlighted ? '#eee' : 'transparent' }}
-        >
-          {item.label}
-        </div>
-      }
-      value={searchValue}
-      onChange={onSearchChange}
-    />
-  )
-}
+const App = () => (
+  <Router>
+    <Switch>
+      <Route exact path="/" component={Home}/>
+      <Route path="/search" component={Search}/>
+      <Route component={NotFound}/>
+    </Switch>
+  </Router>
+);
 
 export default App;
